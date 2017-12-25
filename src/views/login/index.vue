@@ -2,12 +2,12 @@
   <div class="login-container">
     <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
       class="card-box login-form">
-      <h3 class="title">vue-element-admin</h3>
-      <el-form-item prop="username">
+      <h3 class="title">KShop Admin</h3>
+      <el-form-item prop="u_email">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
         </span>
-        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="username" />
+        <el-input name="u_email" type="text" v-model="loginForm.u_email" autoComplete="on" placeholder="u_email" />
       </el-form-item>
       <el-form-item prop="password">
         <span class="svg-container">
@@ -23,7 +23,7 @@
         </el-button>
       </el-form-item>
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
+        <span style="margin-right:20px;">u_email: admin</span>
         </span> password: admin</span>
       </div>
     </el-form>
@@ -36,7 +36,7 @@ import { isvalidUsername } from '@/utils/validate'
 export default {
   name: 'login',
   data() {
-    const validateUsername = (rule, value, callback) => {
+    const validateEmail = (rule, value, callback) => {
       if (!isvalidUsername(value)) {
         callback(new Error('请输入正确的用户名'))
       } else {
@@ -52,11 +52,11 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: 'admin'
+        u_email: '784248377@qq.com',
+        password: 'philips'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        u_email: [{ required: true, trigger: 'blur', validator: validateEmail }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
       loading: false,
