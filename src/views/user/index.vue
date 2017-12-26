@@ -16,6 +16,16 @@
           {{scope.row.u_status | getEnumLabel('u_status', $root)}}
         </template>
       </el-table-column>
+      <el-table-column label="用户验证状态">
+        <template slot-scope="scope">
+          {{scope.row.u_auth_status | getEnumLabel('u_auth_status', $root)}}
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间">
+        <template slot-scope="scope">
+          {{scope.row.u_created_at | parseTime}}
+        </template>
+      </el-table-column>
     </el-table>
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"

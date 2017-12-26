@@ -5,3 +5,4 @@ export function getEnumLabel(value, name, vue) {
   }
   return value
 }
+export { formatTime, parseTime } from '@/utils/index'
