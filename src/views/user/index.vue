@@ -11,19 +11,34 @@
           {{scope.row.u_username}}
         </template>
       </el-table-column>
+      <el-table-column label="用户邮箱">
+        <template slot-scope="scope">
+          {{scope.row.u_email}}
+        </template>
+      </el-table-column>
       <el-table-column label="用户状态">
         <template slot-scope="scope">
-          {{scope.row.u_status | getEnumLabel('u_status', $root)}}
+          <el-tag :type="scope.row.u_status | statusFilter('u_status')">{{scope.row.u_status | getEnumLabel('u_status', $root)}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="用户验证状态">
         <template slot-scope="scope">
-          {{scope.row.u_auth_status | getEnumLabel('u_auth_status', $root)}}
+          <el-tag :type="scope.row.u_auth_status | statusFilter('u_auth_status')">{{scope.row.u_auth_status | getEnumLabel('u_auth_status', $root)}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间">
         <template slot-scope="scope">
           {{scope.row.u_created_at | parseTime}}
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间">
+        <template slot-scope="scope">
+          {{scope.row.u_updated_at | parseTime}}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" class-name="small-padding">
+        <template slot-scope="scope">
+          <router-link :to="{ name: 'UserUpdate', params: {u_id : scope.row.u_id} }" :class="'el-button el-button--info el-button--mini'">编辑</router-link>
         </template>
       </el-table-column>
     </el-table>
@@ -44,13 +59,34 @@ export default {
       total: 0,
       listQuery: {
         page: 1,
-        limit: 10
+        limit: 9
       },
       listLoading: true
     }
   },
   created() {
     this.fetchData()
+  },
+  filters: {
+    statusFilter(value, type) {
+      const statusMap = {
+        active: 'success',
+        locked: 'info',
+        not_auth: 'danger'
+      }
+      const authStatusMap = {
+        not_auth: 'info',
+        had_auth: 'success'
+      }
+      switch (type) {
+        case 'u_status':
+          return statusMap[value]
+        case 'u_auth_status':
+          return authStatusMap[value]
+        default:
+          return 'success'
+      }
+    }
   },
   methods: {
     fetchData() {
