@@ -1,14 +1,19 @@
 <template>
   <div class="app-container">
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="等待加载" border fit highlight-current-row>
-      <el-table-column align="center" width="95">
+      <el-table-column align="center" width="95" label="用户id">
         <template slot-scope="scope">
-          {{scope.$index}}
+          {{scope.row.u_id}}
         </template>
       </el-table-column>
-      <el-table-column label="Title">
+      <el-table-column label="用户名称">
         <template slot-scope="scope">
           {{scope.row.u_username}}
+        </template>
+      </el-table-column>
+      <el-table-column label="用户状态">
+        <template slot-scope="scope">
+          {{scope.row.u_status | getEnumLabel('u_status', $root)}}
         </template>
       </el-table-column>
     </el-table>
@@ -22,7 +27,6 @@
 
 <script>
 import { getList } from '@/api/user'
-
 export default {
   data() {
     return {
@@ -33,16 +37,6 @@ export default {
         limit: 10
       },
       listLoading: true
-    }
-  },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'gray',
-        deleted: 'danger'
-      }
-      return statusMap[status]
     }
   },
   created() {
