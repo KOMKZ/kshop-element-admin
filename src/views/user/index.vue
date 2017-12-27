@@ -1,6 +1,38 @@
 <template>
-  <div class="app-container">
-    <el-table :data="list" v-loading.body="listLoading" element-loading-text="等待加载" border fit highlight-current-row>
+  <div class="app-container calendar-list-container">
+    <div class="filter-container">
+      <el-form ref="form" :model="filterParams" size="mini" @submit="handleFilterChange" label-position="top">
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-form-item label="用户昵称/邮箱">
+              <el-input v-model="filterParams.u_email"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="用户状态">
+              <el-select v-model="filterParams.u_status" placeholder="请选择用户状态">
+                <el-option label="激活状态" value="active"></el-option>
+                <el-option label="锁定状态" value="locked"></el-option>
+                <el-option label="未验证" value="not_auth"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="4">
+            <el-button type="primary" size="small" @click="handleFilterChange">搜索</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+
+    <el-table
+    :data="list"
+    @sort-change="handleOrderChange"
+    v-loading.body="listLoading"
+    element-loading-text="等待加载"
+    border fit highlight-current-row
+    >
       <el-table-column align="center" width="95" label="用户id">
         <template slot-scope="scope">
           {{scope.row.u_id}}
@@ -16,22 +48,24 @@
           {{scope.row.u_email}}
         </template>
       </el-table-column>
+      <!-- <el-table-column label="用户状态" :filters="getEnumMap('u_status')" column-key="u_status" prop="u_status"> -->
       <el-table-column label="用户状态">
         <template slot-scope="scope">
           <el-tag :type="scope.row.u_status | statusFilter('u_status')">{{scope.row.u_status | getEnumLabel('u_status', $root)}}</el-tag>
         </template>
       </el-table-column>
+      <!-- <el-table-column label="用户验证状态" :filters="getEnumMap('u_auth_status')" column-key="u_auth_status" prop="u_auth_status"> -->
       <el-table-column label="用户验证状态">
         <template slot-scope="scope">
           <el-tag :type="scope.row.u_auth_status | statusFilter('u_auth_status')">{{scope.row.u_auth_status | getEnumLabel('u_auth_status', $root)}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间">
+      <el-table-column label="创建时间" sortable="custom" prop="u_created_at">
         <template slot-scope="scope">
           {{scope.row.u_created_at | parseTime}}
         </template>
       </el-table-column>
-      <el-table-column label="更新时间">
+      <el-table-column label="更新时间" sortable="custom" prop="u_updated_at">
         <template slot-scope="scope">
           {{scope.row.u_updated_at | parseTime}}
         </template>
@@ -61,7 +95,25 @@ export default {
         page: 1,
         limit: 9
       },
+      sort: '',
+      filterParams : {
+        u_email: '',
+        u_status: [],
+        u_auth_status: []
+      },
       listLoading: true
+    }
+  },
+  computed: {
+    getSortParams() {
+      return this.sort
+      // const orders = []
+      // Object.keys(this.sort).forEach((key) => {
+      //   if (this.sort[key]) {
+      //     orders.push(this.sort[key])
+      //   }
+      // })
+      // return orders.join(',')
     }
   },
   created() {
@@ -91,11 +143,30 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      getList(this.listQuery).then(response => {
+      const params = {
+        sort: this.getSortParams,
+        filters: this.filterParams,
+        ...this.listQuery
+      }
+      getList(params).then(response => {
         this.list = response.data.items
         this.total = response.data.count
         this.listLoading = false
       })
+    },
+    getEnumMap(name) {
+      const map = {
+        u_status: [
+          { text: '已经激活', value: 'active' },
+          { text: '锁定', value: 'locked' },
+          { text: '没有验证', value: 'not_auth' }
+        ],
+        u_auth_status: [
+          { text: '未验证', value: 'not_auth' },
+          { text: '已经验证', value: 'had_auth' }
+        ]
+      }
+      return map[name]
     },
     handleCurrentChange(val) {
       this.listQuery.page = val
@@ -104,7 +175,26 @@ export default {
     handleSizeChange(val) {
       this.listQuery.limit = val
       this.fetchData()
+    },
+    handleOrderChange({ column, prop, order }) {
+      if (order === 'ascending') {
+        this.sort = prop
+      } else if (order === 'descending') {
+        this.sort = '-' + prop
+      } else {
+        this.sort = ''
+      }
+      this.fetchData()
+    },
+    handleFilterChange() {
+      console.log(this.filterParams)
+      this.fetchData()
     }
   }
 }
 </script>
+<style lang="scss">
+.filter-container{
+  padding-bottom: 30px;
+}
+</style>
