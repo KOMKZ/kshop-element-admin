@@ -1,26 +1,109 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-form ref="form" :model="filterParams" size="mini" @submit="handleFilterChange" label-position="top">
+      <el-form
+      ref="form"
+      :model="filterParams"
+      size="mini"
+      label-position="top"
+      >
         <el-row :gutter="20">
           <el-col :span="4">
             <el-form-item label="用户昵称/邮箱">
-              <el-input v-model="filterParams.u_email"></el-input>
+              <el-input
+              v-model="filterParams.u_email"
+              @change="handleFilterChange"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="用户id">
+              <el-input
+              v-model="filterParams.u_id"
+              @change="handleFilterChange"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
+            <el-form-item label="用户验证状态">
+              <el-select
+              v-model="filterParams.u_auth_status"
+              multiple placeholder="请选择"
+              @change="handleFilterChange"
+              >
+                 <el-option
+                   v-for="item in getEnumMap('u_auth_status')"
+                   :key="item.value"
+                   :label="item.text"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+            </el-form-item>
             <el-form-item label="用户状态">
-              <el-select v-model="filterParams.u_status" placeholder="请选择用户状态">
-                <el-option label="激活状态" value="active"></el-option>
-                <el-option label="锁定状态" value="locked"></el-option>
-                <el-option label="未验证" value="not_auth"></el-option>
-              </el-select>
+              <el-select
+              v-model="filterParams.u_status"
+              multiple placeholder="请选择"
+              @change="handleFilterChange"
+              >
+                 <el-option
+                   v-for="item in getEnumMap('u_status')"
+                   :key="item.value"
+                   :label="item.text"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="创建时间(开始)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.u_created_at_begin"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="创建时间(结束)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.u_created_at_end"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="更新时间(开始)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.u_updated_at_begin"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="更新时间(结束)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.u_updated_at_end"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="4">
-            <el-button type="primary" size="small" @click="handleFilterChange">搜索</el-button>
+            <el-button @click="handleFilterChange" type="info" native-type="submit" size="mini">查询</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -89,6 +172,9 @@ import { getList } from '@/api/user'
 export default {
   data() {
     return {
+      pickerOptions: {
+
+      },
       list: null,
       total: 0,
       listQuery: {
@@ -96,10 +182,15 @@ export default {
         limit: 9
       },
       sort: '',
-      filterParams : {
+      filterParams: {
         u_email: '',
+        u_id: '',
         u_status: [],
-        u_auth_status: []
+        u_auth_status: [],
+        u_updated_at_begin: '',
+        u_updated_at_end: '',
+        u_created_at_begin: '',
+        u_created_at_end: ''
       },
       listLoading: true
     }
