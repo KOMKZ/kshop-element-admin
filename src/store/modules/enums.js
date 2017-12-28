@@ -16,7 +16,7 @@ const enums = {
     RequestEnumsMap({ commit }) {
       return new Promise((resolve, reject) => {
         getApiEnumsMap().then(response => {
-          setEnumsMap(response.data)
+          setEnumsMap(1)
           commit('SET_ENUMS_MAP', response.data)
           resolve(response)
         }).catch(error => {

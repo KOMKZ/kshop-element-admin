@@ -7,3 +7,12 @@ export function getList(params) {
     params: params
   })
 }
+
+export function updateUser(u_id, data) {
+  data['u_id'] = u_id
+  return request({
+    url: '/user/update',
+    method: 'post',
+    data: data
+  })
+}
