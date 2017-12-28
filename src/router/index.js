@@ -54,7 +54,7 @@ export const constantRouterMap = [
         meta: { title: '创建用户', icon: 'table' }
       },
       {
-        path: '/user/:u_id/update',
+        path: 'update',
         name: 'UserUpdate',
         component: _import('user/update'),
         meta: { title: '更新用户', icon: 'table' }

@@ -1,13 +1,159 @@
 <template lang="html">
 	<div class="app-container">
-		hello world
+    <el-form ref="updateUserForm" :rules="rules" v-loading="isloading" :model="userForm" label-width="120px">
+      <el-row>
+        <el-col :span="4">
+          <el-button native-type="submit" type="primary" size="mini" @click="handleSubmitUpdate">确认修改</el-button>
+        </el-col>
+      </el-row>
+      <el-tabs v-model="currentTabName">
+        <el-tab-pane label="基本信息" name="baseTab">
+          <el-row>
+            <el-col :span="6">
+              <el-form-item label="用户名称">
+                <el-input disabled size="small" v-model="userForm.u_username"></el-input>
+              </el-form-item>
+              <el-form-item label="用户邮箱">
+                <el-input disabled size="small" v-model="userForm.u_email"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="输入密码" prop="password">
+                <el-input size="small" :type="pwdType" v-model="userForm.password"></el-input>
+              </el-form-item>
+              <el-form-item label="确认密码" prop="password_confirm">
+                <el-input size="small" :type="pwdType" v-model="userForm.password_confirm"></el-input>
+                <span class="show-pwd" @click="togglePwdType"><svg-icon icon-class="eye" /></span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="用户验证状态">
+                <el-select
+                v-model="userForm.u_auth_status"
+                 placeholder="请选择"
+                >
+                   <el-option
+                     v-for="item in getEnumMap('u_auth_status')"
+                     :key="item.value"
+                     :label="item.text"
+                     :value="item.value">
+                   </el-option>
+                 </el-select>
+              </el-form-item>
+              <el-form-item label="用户状态">
+                <el-select
+                v-model="userForm.u_status"
+                placeholder="请选择"
+                >
+                   <el-option
+                     v-for="item in getEnumMap('u_status')"
+                     :key="item.value"
+                     :label="item.text"
+                     :value="item.value">
+                   </el-option>
+                 </el-select>
+              </el-form-item>
+            </el-col>
+      		</el-row>
+          <el-row>
+      		</el-row>
+        </el-tab-pane>
+        <el-tab-pane label="扩展信息" name="extendTab">
+          扩展信息
+        </el-tab-pane>
+      </el-tabs>
+  </el-form>
 	</div>
 </template>
 
 <script>
+import { getEnumMap } from '@/utils/global'
+import { getUser, updateUser } from '@/api/user'
 export default {
+  data() {
+    const checkConfirm = (rule, value, callback) => {
+      if(!value && !this.userForm.password){
+        return callback()
+      }
+      if(value !== this.userForm.password){
+        return callback("两次输入的密码不一致")
+      }
+      callback()
+    }
+    return {
+      isloading: true,
+      currentTabName: 'baseTab',
+      pwdType: 'password',
+      rules: {
+        password: [
+          {min: 6, max: 20, trigger: 'blur', message: '长度在 6 到 20 个字符'}
+        ],
+        password_confirm: [
+          {validator: checkConfirm, trigger: 'blur'}
+        ]
+      },
+      userForm: {
+        u_username: null,
+        u_email: null,
+        password: null,
+        password_confirm: null,
+        u_auth_status: 'not_auth',
+        u_status: 'active',
+        u_created_at: null,
+        u_updated_at: null
+      }
+    }
+  },
+  mounted() {
+    this.refreshUser(this.$route.query['u_id'])
+  },
+  methods: {
+    togglePwdType() {
+      this.pwdType = this.pwdType === 'password' ? 'text' : 'password'
+    },
+    getEnumMap(name) {
+      return getEnumMap(name, this.$store.getters.enums)
+    },
+    refreshUser(u_id){
+      this.isloading = true
+      getUser(u_id).then(response => {
+        Object.keys(this.userForm).forEach(key => {
+          if (response.data.hasOwnProperty(key)) {
+            this.userForm[key] = response.data[key]
+          }
+        })
+        this.isloading = false
+      })
+    },
+    handleSubmitUpdate(){
+      this.$refs.updateUserForm.validate(valid => {
+        if (valid) {
+          this.isloading = true
+          const uid = this.$route.query['u_id']
+          updateUser(uid, this.userForm).then(response => {
+            this.isloading = false
+            this.refreshUser(uid)
+          })
+        } else {
+          return false
+        }
+      })
+    }
+  }
 }
 </script>
 
 <style lang="scss">
+$bg:#2d3a4b;
+$dark_gray:#889aa4;
+$light_gray:#eee;
+.show-pwd {
+  position: absolute;
+  right: 10px;
+  top: 3px;
+  font-size: 16px;
+  color: $dark_gray;
+  cursor: pointer;
+  user-select:none;
+}
 </style>

@@ -16,3 +16,10 @@ export function updateUser(u_id, data) {
     data: data
   })
 }
+
+export function getUser(u_id) {
+  return request({
+    url: '/user/view',
+    params: { u_id }
+  })
+}
