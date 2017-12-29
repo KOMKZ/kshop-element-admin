@@ -63,6 +63,29 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/file',
+    component: Layout,
+    redirect: '/file/create',
+    name: 'File',
+    meta: { title: '文件管理', icon: 'file' },
+    children: [
+      {
+        path: 'create',
+        name: 'FileCreate',
+        component: _import('file/create'),
+        meta: { title: '文件创建', icon: 'table' }
+      },
+      {
+        path: 'list',
+        name: 'FileList',
+        component: _import('file/index'),
+        meta: { title: '文件列表', icon: 'table' }
+      }
+    ]
+
+  },
+
+  {
     path: '/form',
     component: Layout,
     children: [

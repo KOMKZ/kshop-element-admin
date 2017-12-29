@@ -52,7 +52,7 @@ export default {
     }
     return {
       loginForm: {
-        u_email: '784248377@qq.com',
+        u_email: 'kitralzhong1@qq.com',
         password: 'philips'
       },
       loginRules: {

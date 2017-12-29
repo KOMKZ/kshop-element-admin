@@ -16,7 +16,6 @@ import '@/icons' // icon
 import '@/permission' // permission control
 import * as filters from '@/utils/filters'
 Vue.use(ElementUI, { locale })
-
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })

@@ -11,10 +11,10 @@
           <el-row>
             <el-col :span="6">
               <el-form-item label="用户名称">
-                <el-input disabled size="small" v-model="userForm.u_username"></el-input>
+                <el-input size="small" v-model="userForm.u_username"></el-input>
               </el-form-item>
               <el-form-item label="用户邮箱">
-                <el-input disabled size="small" v-model="userForm.u_email"></el-input>
+                <el-input size="small" v-model="userForm.u_email"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -72,11 +72,11 @@ import { getUser, updateUser } from '@/api/user'
 export default {
   data() {
     const checkConfirm = (rule, value, callback) => {
-      if(!value && !this.userForm.password){
+      if (!value && !this.userForm.password) {
         return callback()
       }
-      if(value !== this.userForm.password){
-        return callback("两次输入的密码不一致")
+      if (value !== this.userForm.password) {
+        return callback('两次输入的密码不一致')
       }
       callback()
     }
@@ -86,10 +86,10 @@ export default {
       pwdType: 'password',
       rules: {
         password: [
-          {min: 6, max: 20, trigger: 'blur', message: '长度在 6 到 20 个字符'}
+          { min: 6, max: 20, trigger: 'blur', message: '长度在 6 到 20 个字符' }
         ],
         password_confirm: [
-          {validator: checkConfirm, trigger: 'blur'}
+          { validator: checkConfirm, trigger: 'blur' }
         ]
       },
       userForm: {
@@ -114,7 +114,7 @@ export default {
     getEnumMap(name) {
       return getEnumMap(name, this.$store.getters.enums)
     },
-    refreshUser(u_id){
+    refreshUser(u_id) {
       this.isloading = true
       getUser(u_id).then(response => {
         Object.keys(this.userForm).forEach(key => {
@@ -125,7 +125,7 @@ export default {
         this.isloading = false
       })
     },
-    handleSubmitUpdate(){
+    handleSubmitUpdate() {
       this.$refs.updateUserForm.validate(valid => {
         if (valid) {
           this.isloading = true
