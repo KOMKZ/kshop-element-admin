@@ -89,7 +89,7 @@ export default {
       fileResult: ''
     }
   },
-  components: {JsonEditor},
+  components: { JsonEditor },
   methods: {
     getEnumMap(name) {
       return getEnumMap(name, this.$store.getters.enums)
