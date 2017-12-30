@@ -59,7 +59,27 @@
       		</el-row>
         </el-tab-pane>
         <el-tab-pane label="扩展信息" name="extendTab">
-          扩展信息
+          <el-row>
+            <el-col :span="4">
+              <el-form-item label="当前头像">
+                <img :src="userForm.u_avatar_url1" width="120" height="120"></img>
+              	<image-cropper field="img"
+                      @crop-success="handleCropSuccess"
+                      @crop-upload-success="handleCropUploadSuccess"
+                      @crop-upload-fail="handleCropUploadFail"
+                      v-model="imgCropperOpts.show"
+              		:width="100"
+              		:height="100"
+                  :field="'file'"
+              		url="http://localhost:8011/file/create"
+              		:params="imgCropperOpts.params"
+              		:headers="imgCropperOpts.headers"
+              		img-format="png">
+                </image-cropper>
+                <el-button type="primary" size="mini" @click="imgCropperOpts.show = true">修改</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-tab-pane>
       </el-tabs>
   </el-form>
@@ -69,6 +89,9 @@
 <script>
 import { getEnumMap } from '@/utils/global'
 import { getUser, updateUser } from '@/api/user'
+import ImageCropper from 'vue-image-crop-upload'
+import { getToken } from '@/utils/auth'
+
 export default {
   data() {
     const checkConfirm = (rule, value, callback) => {
@@ -82,8 +105,17 @@ export default {
     }
     return {
       isloading: true,
-      currentTabName: 'baseTab',
+      currentTabName: 'extendTab',
       pwdType: 'password',
+      imgCropperOpts: {
+        headers: {
+          Authorization: 'Bearer ' + getToken()
+        },
+        show: false,
+        params: {
+          file_save_type: 'oss'
+        }
+      },
       rules: {
         password: [
           { min: 6, max: 20, trigger: 'blur', message: '长度在 6 到 20 个字符' }
@@ -100,10 +132,14 @@ export default {
         u_auth_status: 'not_auth',
         u_status: 'active',
         u_created_at: null,
-        u_updated_at: null
+        u_updated_at: null,
+        u_avatar_url1: '',
+        u_avatar_url2: '',
+        u_avatar_id1: ''
       }
     }
   },
+  components: { ImageCropper },
   mounted() {
     this.refreshUser(this.$route.query['u_id'])
   },
@@ -124,6 +160,21 @@ export default {
         })
         this.isloading = false
       })
+    },
+    handleCropSuccess() {
+
+    },
+    handleCropUploadSuccess(jsonData, field) {
+      this.userForm.u_avatar_url1 = jsonData.data.file_url
+      const u_id = this.$route.query['u_id']
+      updateUser(u_id, { u_avatar_id1: jsonData.data.file_query_id }).then(res => {
+        this.refreshUser(u_id)
+        this.imgCropperOpts.show = false
+        this.currentTabName = 'extendTab'
+      })
+    },
+    handleCropUploadFail() {
+
     },
     handleSubmitUpdate() {
       this.$refs.updateUserForm.validate(valid => {

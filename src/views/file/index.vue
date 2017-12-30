@@ -96,6 +96,7 @@
         <el-row>
           <el-col :span="4">
             <el-button @click="handleFilterChange" type="info" native-type="submit" size="mini">查询</el-button>
+            <el-button @click="deleteSelectedRows" type="info" size="mini">删除选中</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -104,11 +105,14 @@
     <el-table
     :data="list"
     @sort-change="handleOrderChange"
+    @selection-change="handleSelectChange"
     v-loading.body="isloading"
     element-loading-text="等待加载"
     border fit highlight-current-row
     >
-      <el-table-column align="center" width="95" label="用户id">
+      <el-table-column align="center" type="selection">
+      </el-table-column>
+      <el-table-column align="center" width="95" label="文件id">
         <template slot-scope="scope">
           {{scope.row.file_id}}
         </template>
@@ -153,11 +157,12 @@
           <el-button type="primary" size="mini" @click="handleCopy(scope.row.file_query_id, $event)">复制</el-button>
         </template>
       </el-table-column>
-      <el-table-column align="right" label="操作" width="300" class-name="small-padding">
+      <el-table-column align="right" label="操作" width="350" class-name="small-padding">
         <template slot-scope="scope">
           <router-link :to="{ path: '/file/update', query: {u_id : scope.row.u_id} }">
             <el-button type="info" size="mini">编辑</el-button>
           </router-link>
+          <el-button @click="deleteFile([scope.row.file_id])" type="warning" size="mini">删除</el-button>
           <el-button @click="showImgDialog(scope.row.file_url)" type="warning" size="mini" v-show="checkIsImg(scope.row)">预览</el-button>
           <el-button type="primary" size="mini" @click="handleCopy(scope.row.file_url, $event)">复制URL</el-button>
         </template>
@@ -181,9 +186,10 @@
 </template>
 
 <script>
-import { getFileList } from '@/api/file'
+import { getFileList, deleteFile } from '@/api/file'
 import { getEnumMap } from '@/utils/global'
 import clip from '@/utils/clipboard' // use clipboard directly
+import { Message } from 'element-ui'
 
 export default {
   created() {
@@ -197,7 +203,8 @@ export default {
       sort: {},
       total: 0,
       list: [],
-      pickerOptions:{},
+      pickerOptions: {},
+      currentSelectRowIds: [],
       filterParams: {
         file_save_type: '',
         file_save_name: '',
@@ -227,6 +234,23 @@ export default {
         this.isloading = false
       })
     },
+    deleteSelectedRows() {
+      if (this.currentSelectRowIds.length > 0) {
+        this.deleteFile(this.currentSelectRowIds)
+      }
+    },
+    deleteFile(file_ids) {
+      this.isloading = true
+      deleteFile(file_ids).then(res => {
+        Message({
+          message: `成功删除${res.data}条记录`,
+          type: 'success',
+          duration: 5 * 1000
+        })
+        this.isloading = false
+        this.fetchData()
+      })
+    },
     showImgDialog(url) {
       this.imgDialogVisable = true
       this.imgDialogSrc = url
@@ -240,6 +264,12 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.fetchData()
+    },
+    handleSelectChange(rows) {
+      this.currentSelectRowIds = []
+      rows.forEach((item) => {
+        this.currentSelectRowIds.push(item.file_id)
+      })
     },
     handleSizeChange(val) {
       this.listQuery.limit = val
@@ -259,7 +289,7 @@ export default {
       }
       this.fetchData()
     },
-    handleCopy(url, event){
+    handleCopy(url, event) {
       clip(url, event)
     },
     handleFilterChange() {

@@ -6,3 +6,13 @@ export function getFileList(params) {
     params: params
   })
 }
+
+export function deleteFile(file_ids) {
+  return request({
+    url: '/file/delete',
+    method: 'post',
+    data: {
+      file_ids: file_ids
+    }
+  })
+}
