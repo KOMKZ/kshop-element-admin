@@ -286,10 +286,5 @@ export default {
 }
 </script>
 <style lang="scss">
-.filter-container{
-  padding-bottom: 30px;
-}
-.pagination-container{
-  padding-top: 30px;
-}
+@import "src/styles/list.scss";
 </style>

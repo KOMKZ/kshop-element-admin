@@ -1,9 +1,110 @@
 <template lang="html">
   <div class="app-container">
+    <div class="filter-container">
+      <el-form
+      ref="form"
+      :model="filterParams"
+      size="mini"
+      label-position="top"
+      >
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-form-item label="保存名称">
+              <el-input
+              v-model="filterParams.file_save_name"
+              @change="handleFilterChange"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="文件后缀">
+              <el-input
+              v-model="filterParams.file_ext"
+              @change="handleFilterChange"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="文件访问设置">
+              <el-select
+              v-model="filterParams.file_is_private"
+              multiple placeholder="请选择"
+              @change="handleFilterChange"
+              >
+                 <el-option
+                   v-for="item in getEnumMap('file_is_private')"
+                   :key="item.value"
+                   :label="item.text"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item label="文件时效设置">
+              <el-select
+              v-model="filterParams.file_is_tmp"
+              multiple placeholder="请选择"
+              @change="handleFilterChange"
+              >
+                 <el-option
+                   v-for="item in getEnumMap('file_is_tmp')"
+                   :key="item.value"
+                   :label="item.text"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="创建时间(开始)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.file_created_time_begin"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="创建时间(结束)">
+              <el-date-picker
+                @change="handleFilterChange"
+                v-model="filterParams.file_created_time_end"
+                align="right"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="文件存储类型">
+              <el-select
+              v-model="filterParams.file_save_type"
+              multiple placeholder="请选择"
+              @change="handleFilterChange"
+              >
+                 <el-option
+                   v-for="item in getEnumMap('file_save_type')"
+                   :key="item.value"
+                   :label="item.text"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="4">
+            <el-button @click="handleFilterChange" type="info" native-type="submit" size="mini">查询</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+
     <el-table
     :data="list"
     @sort-change="handleOrderChange"
-    v-loading.body="listLoading"
+    v-loading.body="isloading"
     element-loading-text="等待加载"
     border fit highlight-current-row
     >
@@ -42,22 +143,28 @@
           {{scope.row.file_ext}}
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" sortable="custom" prop="u_created_at">
+      <el-table-column label="创建时间" sortable="custom" prop="file_created_time">
         <template slot-scope="scope">
           {{scope.row.file_created_time | parseTime}}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" class-name="small-padding">
+      <el-table-column label="文件访问id">
+        <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="handleCopy(scope.row.file_query_id, $event)">复制</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column align="right" label="操作" width="300" class-name="small-padding">
         <template slot-scope="scope">
           <router-link :to="{ path: '/file/update', query: {u_id : scope.row.u_id} }">
             <el-button type="info" size="mini">编辑</el-button>
           </router-link>
           <el-button @click="showImgDialog(scope.row.file_url)" type="warning" size="mini" v-show="checkIsImg(scope.row)">预览</el-button>
+          <el-button type="primary" size="mini" @click="handleCopy(scope.row.file_url, $event)">复制URL</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <div v-show="!listLoading" class="pagination-container">
+    <div v-show="!isloading" class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
@@ -76,6 +183,7 @@
 <script>
 import { getFileList } from '@/api/file'
 import { getEnumMap } from '@/utils/global'
+import clip from '@/utils/clipboard' // use clipboard directly
 
 export default {
   created() {
@@ -89,30 +197,34 @@ export default {
       sort: {},
       total: 0,
       list: [],
-      filterParams: {},
+      pickerOptions:{},
+      filterParams: {
+        file_save_type: '',
+        file_save_name: '',
+        file_is_private: '',
+        file_is_tmp: '',
+        file_ext: '',
+        file_created_time_begin: '',
+        file_created_time_end: ''
+      },
       listQuery: {
         page: 1,
         limit: 9
       }
     }
   },
-  computed: {
-    getSortParams() {
-      return this.sort
-    }
-  },
   methods: {
     fetchData() {
-      this.listLoading = true
+      this.isloading = true
       const params = {
-        sort: this.getSortParams,
+        sort: this.sort,
         filters: this.filterParams,
         ...this.listQuery
       }
       getFileList(params).then(response => {
         this.list = response.data.items
         this.total = response.data.count
-        this.listLoading = false
+        this.isloading = false
       })
     },
     showImgDialog(url) {
@@ -146,12 +258,20 @@ export default {
         this.sort = ''
       }
       this.fetchData()
+    },
+    handleCopy(url, event){
+      clip(url, event)
+    },
+    handleFilterChange() {
+      this.fetchData()
     }
   }
 }
 </script>
 
 <style lang="scss">
+@import "src/styles/list.scss";
+
 .imgDialog{
   text-align:center;
 }
