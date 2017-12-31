@@ -29,12 +29,23 @@ service.interceptors.response.use(
   * code为非0是抛错 可结合自己业务进行修改
   */
     const res = response.data ? response.data : {}
-    if ((Number)(res.code) !== 0) {
-      Message({
-        message: res.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
+    const code = (Number)(res.code)
+    if (code !== 0) {
+      if (code !== 1) {
+        Message({
+          message: res.message,
+          type: 'error',
+          duration: 5 * 1000
+        })
+      } else {
+        if (res.message['']) {
+          Message({
+            message: res.message[''].join(','),
+            type: 'error',
+            duration: 5 * 1000
+          })
+        }
+      }
 
       // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
       if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
@@ -48,7 +59,7 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject('error')
+      return Promise.reject(res)
     } else {
       return response.data
     }

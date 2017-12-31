@@ -44,3 +44,15 @@ export function hasLabels() {
 export function setLabelsMap(labels) {
   return localStorage.setItem(labelKey, labels)
 }
+
+export function populateErrors(messages) {
+  const errors = {}
+  Object.keys(messages).forEach(key => {
+    if (Array.isArray(messages[key])) {
+      errors[key] = messages[key].join(',')
+    } else {
+      errors[key] = messages[key]
+    }
+  })
+  return errors
+}
