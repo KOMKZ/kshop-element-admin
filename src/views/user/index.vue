@@ -259,7 +259,7 @@ export default {
       })
     },
     getEnumMap(name) {
-      return getEnumMap(name, this.$store.getters.enums)
+      return getEnumMap(name)
     },
     handleCurrentChange(val) {
       this.listQuery.page = val

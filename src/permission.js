@@ -4,14 +4,21 @@ import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
 import { Message } from 'element-ui'
 import { getToken } from '@/utils/auth' // 验权
-// import { getEnumsMap } from '@/utils/global' // 服务器全局信息
+import { hasEnums, hasLabels } from '@/utils/global' // 服务器全局信息
 
 const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
   NProgress.start()
-  store.dispatch('RequestEnumsMap').then(res => {
-    next()
-  })
+  if (!hasEnums()) {
+    store.dispatch('RequestEnumsMap').then(res => {
+      next()
+    })
+  }
+  if (!hasLabels()) {
+    store.dispatch('RequestLabelsMap').then(res => {
+      next()
+    })
+  }
   // 登录拦截
   if (getToken()) {
     if (to.path === '/login') {

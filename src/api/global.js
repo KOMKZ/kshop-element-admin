@@ -6,3 +6,10 @@ export function getEnumsMap() {
     method: 'get'
   })
 }
+
+export function getLabelsMap() {
+  return request({
+    url: '/api/labels',
+    method: 'get'
+  })
+}

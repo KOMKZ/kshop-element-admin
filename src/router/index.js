@@ -45,19 +45,41 @@ export const constantRouterMap = [
         path: 'index',
         name: 'UserIndex',
         component: _import('user/index'),
-        meta: { title: '用户列表', icon: 'table' }
+        meta: { title: '用户列表', icon: 'user' }
       },
       {
         path: 'create',
         name: 'UserCreate',
         component: _import('user/create'),
-        meta: { title: '创建用户', icon: 'table' }
+        meta: { title: '创建用户', icon: 'user' }
       },
       {
         path: 'update',
         name: 'UserUpdate',
         component: _import('user/update'),
-        meta: { title: '更新用户', icon: 'table' }
+        meta: { title: '更新用户', icon: 'user' }
+      }
+    ]
+  },
+
+  {
+    path: '/goods',
+    component: Layout,
+    redirect: '/goods/list',
+    name: 'Goods',
+    meta: { title: '商品管理', icon: 'user' },
+    children: [
+      {
+        path: 'create',
+        name: 'GoodsCreate',
+        component: _import('goods/create'),
+        meta: { title: '商品创建', icon: 'user' }
+      },
+      {
+        path: 'list',
+        name: 'GoodsList',
+        component: _import('goods/index'),
+        meta: { title: '商品列表', icon: 'user' }
       }
     ]
   },
@@ -67,22 +89,43 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/file/create',
     name: 'File',
-    meta: { title: '文件管理', icon: 'file' },
+    meta: { title: '文件管理', icon: 'user' },
     children: [
       {
         path: 'create',
         name: 'FileCreate',
         component: _import('file/create'),
-        meta: { title: '文件创建', icon: 'table' }
+        meta: { title: '文件创建', icon: 'user' }
       },
       {
         path: 'list',
         name: 'FileList',
         component: _import('file/index'),
-        meta: { title: '文件列表', icon: 'table' }
+        meta: { title: '文件列表', icon: 'user' }
       }
     ]
+  },
 
+  {
+    path: '/classification',
+    component: Layout,
+    redirect: '/classification/create',
+    name: 'Class',
+    meta: { title: '分类管理', icon: 'user' },
+    children: [
+      {
+        path: 'create',
+        name: 'ClassCreate',
+        component: _import('classification/create'),
+        meta: { title: '分类创建', icon: 'user' }
+      },
+      {
+        path: 'list',
+        name: 'ClassList',
+        component: _import('classification/index'),
+        meta: { title: '分类列表', icon: 'user' }
+      }
+    ]
   },
 
   {

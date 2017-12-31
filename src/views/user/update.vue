@@ -148,7 +148,7 @@ export default {
       this.pwdType = this.pwdType === 'password' ? 'text' : 'password'
     },
     getEnumMap(name) {
-      return getEnumMap(name, this.$store.getters.enums)
+      return getEnumMap(name)
     },
     refreshUser(u_id) {
       this.isloading = true
