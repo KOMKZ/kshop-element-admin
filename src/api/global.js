@@ -21,6 +21,14 @@ export function getCls() {
   })
 }
 
+export function deleteCls(g_cls_id) {
+  return request({
+    url: '/classification/delete',
+    method: 'post',
+    data: { g_cls_id }
+  })
+}
+
 export function updateCls(data) {
   return request({
     url: '/classification/update',

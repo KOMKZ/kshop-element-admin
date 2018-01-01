@@ -114,12 +114,6 @@ export const constantRouterMap = [
     meta: { title: '分类管理', icon: 'user' },
     children: [
       {
-        path: 'create',
-        name: 'ClassCreate',
-        component: _import('classification/create'),
-        meta: { title: '分类创建', icon: 'user' }
-      },
-      {
         path: 'list',
         name: 'ClassList',
         component: _import('classification/index'),

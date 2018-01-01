@@ -11,16 +11,14 @@
           <el-col :span="4">
             <el-form-item label="分类名称">
               <el-input
-              v-model="filterForm.data.g_cls_name"
-              @change="handleFilterChange"
+              v-model="filterText"
               ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="4">
-            <el-button @click="handleFilterChange" type="info" native-type="submit" size="mini">查询</el-button>
-            <el-button @click="toggleCreateFormDialog()" type="info" native-type="submit" size="mini">增加一级分类</el-button>
+            <el-button @click="toggleCreateFormDialog()" type="info" size="mini">增加一级分类</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -28,6 +26,7 @@
     <el-row>
       <el-col :span="8">
         <el-tree
+          ref="tree2"
           :data="clsBox.data"
           :props="defaultProps"
           v-loading="clsBox.loading"
@@ -35,6 +34,7 @@
           node-key="g_cls_id"
           default-expand-all
           :expand-on-click-node="false"
+          :filter-node-method="filterNode"
           :render-content="renderContent">
         </el-tree>
       </el-col>
@@ -80,7 +80,7 @@
       <p>你确定要删除吗？</p>
       <div style="text-align: right; margin: 0">
         <el-button size="mini" type="text" @click="deleteForm.showProp = false">取消</el-button>
-        <el-button type="primary" size="mini" @click="handleDeleteSubmit">确定</el-button>
+        <el-button :loading="deleteForm.loading" type="primary" size="mini" @click="handleDeleteSubmit">确定</el-button>
       </div>
     </el-popover>
 
@@ -88,19 +88,22 @@
 </template>
 
 <script>
-import { getCls, updateCls, createCls } from '@/api/global'
+import { getCls, updateCls, createCls, deleteCls } from '@/api/global'
 import { getLabel, populateErrors } from '@/utils/global'
 
 export default {
   data() {
     return {
+      filterText: '',
       filterForm: {
         data: {
           g_cls_name: ''
         }
       },
       deleteForm: {
-        showProp: false
+        showProp: false,
+        loading: false,
+        curDelCls: null
       },
       createForm: {
         data: {
@@ -135,6 +138,11 @@ export default {
       }
     }
   },
+  watch: {
+    filterText(val) {
+      this.$refs.tree2.filter(val)
+    }
+  },
   computed: {
     getCreateFormCurClsName() {
       return this.createForm.currentCls['g_cls_name'] ? this.createForm.currentCls['g_cls_name'] : '顶级分类'
@@ -151,6 +159,12 @@ export default {
         this.editForm.loading = false
       })
     },
+    deleteCls(g_cls_id) {
+      this.deleteForm.loading = true
+      return deleteCls(g_cls_id).then(res => {
+        this.deleteForm.loading = false
+      })
+    },
     createCls() {
       this.createForm.loading = true
       return createCls(this.createForm.data).then(res => {
@@ -164,18 +178,28 @@ export default {
         this.clsBox.data = res.data
       })
     },
-    handleFilterChange() {
-
+    filterNode(value, data) {
+      if (!value) return true
+      return data.g_cls_name.indexOf(value) !== -1
     },
     handleDeleteSubmit() {
-
+      const g_cls_id = this.deleteForm.curDelCls.data.g_cls_id
+      this.deleteCls(g_cls_id).then(res => {
+        this.deleteForm.showProp = false
+        this.fetchData()
+      }).catch((error) => {
+        this.deleteForm.loading = false
+        this.deleteForm.showProp = false
+        console.log(error)
+      })
     },
     handleSubmitEdit() {
       this.updateCls().then(res => {
         this.editForm.show = false
         this.fetchData()
-      }).catch(err => {
+      }).catch(error => {
         this.editForm.loading = false
+        console.log(error)
       })
     },
     handleSubmitCreate() {
