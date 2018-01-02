@@ -19,7 +19,7 @@ export function getEnumMap(name) {
 }
 
 export function hasEnums() {
-  return !!localStorage.getItem(enumKey)
+  return (typeof enums === 'object')
 }
 
 export function setEnumsMap(enums) {
