@@ -10,18 +10,18 @@
         </el-col>
       </el-row>
       <el-tabs v-model="goods.currentTabName">
-        <el-tab-pane name="baseGoods" label="基本信息">
+        <el-tab-pane name="baseTab" label="基本信息">
           <el-row :gutter="20">
             <el-col :span="6">
-              <el-form-item :label="getLabel('g_primary_name')" :error="this.goods.errors.g_primary_name">
+              <el-form-item :label="getLabel('g_primary_name')" :error="goods.errors.g_primary_name">
                 <el-input size="small" v-model="goods.data.g_primary_name"></el-input>
               </el-form-item>
-              <el-form-item :label="getLabel('g_secondary_name')" :error="this.goods.errors.g_secondary_name">
+              <el-form-item :label="getLabel('g_secondary_name')" :error="goods.errors.g_secondary_name">
                 <el-input size="small" v-model="goods.data.g_secondary_name"></el-input>
               </el-form-item>
               <el-row :gutter="12">
                 <el-col :span="12">
-                  <el-form-item :label="getLabel('g_status')" :error="this.goods.errors.g_status">
+                  <el-form-item :label="getLabel('g_status')" :error="goods.errors.g_status">
                     <el-select
                     size="small"
                     v-model="goods.data.g_status"
@@ -35,18 +35,19 @@
                        </el-option>
                      </el-select>
                   </el-form-item>
-                </el-col>
+                </el-col>import Upload from '@/components/Upload/singleImage3'
+
                 <el-col :span="12">
                 </el-col>
               </el-row>
-              <el-form-item label="查找并选择分类" :error="this.goods.errors.g_cls_id">
+              <el-form-item label="查找并选择分类" :error="goods.errors.g_cls_id">
                 <el-input size="small" v-model="goods.curFilterGClsName"></el-input>
                 <el-tag closable @close="clearCurGCls" type="info" v-show="goods.curGClsName">{{goods.curGClsName}}</el-tag>
                 <category @select-category="handleCategoryChange" :filterValue="goods.curFilterGClsName"></category>
               </el-form-item>
             </el-col>
-            <el-col :span="6" :error="this.goods.errors.g_start_at">
-              <el-form-item :label="getLabel('g_start_at')">
+            <el-col :span="6">
+              <el-form-item :label="getLabel('g_start_at')" :error="goods.errors.g_start_at">
                 <el-date-picker
                   size="small"
                   v-model="goods.data.g_start_at"
@@ -54,13 +55,22 @@
                   placeholder="选择日期时间">
                 </el-date-picker>
               </el-form-item>
-              <el-form-item :label="getLabel('g_end_at')" :error="this.goods.errors.g_end_at">
+              <el-form-item :label="getLabel('g_end_at')" :error="goods.errors.g_end_at">
                 <el-date-picker
                   size="small"
                   v-model="goods.data.g_start_at"
                   type="datetime"
                   placeholder="选择日期时间">
                 </el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+        <el-tab-pane label="详细信息(介绍信息)" name="detailTab">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="getLabel('g_intro_text')">
+                <tinymce :height=400 ref="editor" v-model="goods.data.g_intro_text"></tinymce>
               </el-form-item>
             </el-col>
           </el-row>
@@ -74,28 +84,30 @@
 import { getEnumMap, getLabel, populateErrors } from '@/utils/global'
 import { createGoods } from '@/api/goods'
 import Category from '@/components/Category'
+import Tinymce from '@/components/Tinymce'
 
 export default {
   data() {
     return {
       goods: {
-        currentTabName: 'baseGoods',
+        currentTabName: 'detailTab',
         curFilterGClsName: '',
-        curGClsName: '',
+        curGClsName: 'T恤',
         loading: false,
         data: {
-          g_primary_name: '',
+          g_primary_name: '4件装 囤货装 男式基础色织纯棉圆领T恤 4',
           g_secondary_name: '',
-          g_cls_id: 0,
-          g_status: '',
-          g_start_at: '',
-          g_end_at: ''
+          g_cls_id: 32,
+          g_status: 'draft',
+          g_start_at: '2018-01-01 00:00:00',
+          g_end_at: '2018-03-01 00:00:00',
+          g_intro_text: ''
         },
         errors: {}
       }
     }
   },
-  components: { Category },
+  components: { Category, Tinymce },
   methods: {
     createGoods(data){
       this.goods.loading = true
@@ -115,8 +127,10 @@ export default {
       })
     },
     handleCategoryChange(data) {
-      this.goods.curGClsName = data.g_cls_name
-      this.goods.data.g_cls_id = data.g_cls_id
+      if(data.nodes.length <= 0){
+        this.goods.curGClsName = data.g_cls_name
+        this.goods.data.g_cls_id = data.g_cls_id
+      }
     },
     clearCurGCls(){
       this.goods.curGClsName = '';
