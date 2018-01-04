@@ -38,7 +38,7 @@ service.interceptors.response.use(
           duration: 5 * 1000
         })
       } else {
-        if (res.message['']) {
+        if (res.message[''] || res.message['EXCEPTION']) {
           Message({
             message: res.message[''].join(','),
             type: 'error',
