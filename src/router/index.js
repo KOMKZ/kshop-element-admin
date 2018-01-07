@@ -80,6 +80,12 @@ export const constantRouterMap = [
         name: 'GoodsList',
         component: _import('goods/index'),
         meta: { title: '商品列表', icon: 'user' }
+      },
+      {
+        path: 'update',
+        name: 'GoodsUpdate',
+        component: _import('goods/update'),
+        meta: { title: '商品编辑', icon: 'user' }
       }
     ]
   },

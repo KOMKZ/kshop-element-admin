@@ -335,12 +335,13 @@
 
 <script>
 import { getEnumMap, getLabel, populateErrors } from '@/utils/global'
-import { createGoods } from '@/api/goods'
+import { updateGoods, getGoods } from '@/api/goods'
 import Category from '@/components/Category'
 import Tinymce from '@/components/Tinymce'
 import { getToken } from '@/utils/auth'
 import Vue from 'vue'
 import ImageCropper from 'vue-image-crop-upload'
+import { parseTime } from '@/utils'
 
 export default {
   data() {
@@ -366,16 +367,6 @@ export default {
         curGClsName: '',
         data: {
           g_atr_opts: [
-            {
-              g_opt_name: '红色',
-              g_opt_img: 'oss:default/5d8168d83e89a628f376096d51f4a1da.png',
-              g_opt_img_url: 'http://trainor-oss-test.oss-cn-shenzhen.aliyuncs.com/test_hse_data/c21f969b5f03d33d43e04f8f136e7682/5d8168d83e89a628f376096d51f4a1da.png'
-            },
-            {
-              g_opt_name: '蓝色',
-              g_opt_img: 'oss:default/5d8168d83e89a628f376096d51f4a1da.png',
-              g_opt_img_url: 'http://trainor-oss-test.oss-cn-shenzhen.aliyuncs.com/test_hse_data/c21f969b5f03d33d43e04f8f136e7682/5d8168d83e89a628f376096d51f4a1da.png'
-            }
           ],
           g_atr_id: null,
           g_atr_show_name: '',
@@ -417,82 +408,22 @@ export default {
         }
       },
       goods: {
-        currentTabName: 'skuAttrTab',
+        currentTabName: 'baseTab',
         curFilterGClsName: '',
         curGClsName: '卫衣',
         loading: false,
         data: {
-          g_primary_name: '4件装 囤货装 男式基础色织纯棉圆领T恤 4',
+          g_id: null,
+          g_primary_name: '',
           g_secondary_name: '',
-          g_cls_id: 22,
-          g_status: 'draft',
-          g_start_at: '2018-01-01 00:00:00',
-          g_end_at: '2018-03-01 00:00:00',
-          g_intro_text: 'hello world',
+          g_cls_id: '',
+          g_status: '',
+          g_start_at: '',
+          g_end_at: '',
+          g_intro_text: '',
           g_sku_attrs: [
-            {
-              g_atr_id: '41',
-              g_atr_code: '',
-              g_atr_name: '颜色',
-              g_atr_show_name: '颜色',
-              g_atr_opts: [
-                {
-                  g_opt_name: '红色',
-                  g_opt_img: 'oss:default/5d8168d83e89a628f376096d51f4a1da.png',
-                  g_opt_img_url: 'http://trainor-oss-test.oss-cn-shenzhen.aliyuncs.com/test_hse_data/c21f969b5f03d33d43e04f8f136e7682/5d8168d83e89a628f376096d51f4a1da.png'
-                },
-                {
-                  g_opt_name: '蓝色',
-                  g_opt_img: 'oss:default/5d8168d83e89a628f376096d51f4a1da.png',
-                  g_opt_img_url: 'http://trainor-oss-test.oss-cn-shenzhen.aliyuncs.com/test_hse_data/c21f969b5f03d33d43e04f8f136e7682/5d8168d83e89a628f376096d51f4a1da.png'
-                }
-              ]
-            },
-            {
-              g_atr_id: '43',
-              g_atr_code: '',
-              g_atr_name: '尺寸',
-              g_atr_show_name: '尺寸',
-              g_atr_opts: [
-                {
-                  g_opt_name: 'M'
-                },
-                {
-                  g_opt_name: 'L'
-                }
-              ]
-            },
-            {
-              g_atr_id: null,
-              g_atr_code: '',
-              g_atr_name: '是否有帽子',
-              g_atr_show_name: '是否有帽子',
-              g_atr_type: 'sku',
-              g_atr_opts: [
-                {
-                  g_opt_name: '是'
-                },
-                {
-                  g_opt_name: '否'
-                }
-              ]
-            }
           ],
           g_metas: [
-            {
-              g_atr_id: '22',
-              g_atr_code: '',
-              g_atr_name: '适用季节',
-              g_atr_show_name: '适用季节',
-              gm_value: '冬季'
-            },
-            {
-              g_atr_id: null,
-              g_atr_code: '',
-              g_atr_name: '制造商',
-              g_atr_show_name: '制造商',
-              gm_value: 'muji'
-            }
           ]
         },
         errors: {},
@@ -520,12 +451,33 @@ export default {
       })
     }
   },
+  created() {
+    this.fetchGoods()
+  },
   components: { Category, Tinymce, ImageCropper },
   methods: {
-    createGoods(data) {
+    updateGoods(data) {
       this.goods.loading = true
-      return createGoods(data).then(res => {
+      return updateGoods(data).then(res => {
         this.goods.loading = false
+      })
+    },
+    fetchGoods() {
+      this.goods.loading = true
+      return getGoods(this.$route.query['g_id']).then(res => {
+        this.goods.loading = false
+        Object.keys(this.goods.data).forEach(name => {
+          if (res.data[name]) {
+            this.goods.data[name] = res.data[name]
+          }
+        })
+        if (this.goods.data['g_start_at']) {
+          this.goods.data['g_start_at'] = parseTime(this.goods.data['g_start_at'])
+        }
+        if (this.goods.data['g_end_at']) {
+          this.goods.data['g_end_at'] = parseTime(this.goods.data['g_end_at'])
+        }
+        return res
       })
     },
     getTabError(tabName) {
@@ -562,13 +514,14 @@ export default {
       // return false
     },
     handleSubmitCreate() {
-      this.createGoods(this.goods.data).then(res => {
+      this.updateGoods(this.goods.data).then(res => {
         console.log(res)
       }).catch(error => {
         this.goods.loading = false
         if (error.message) {
           this.goods.errors = populateErrors(error.message)
         }
+        console.log(error)
       })
     },
     handleCategoryChange(data) {
@@ -661,7 +614,6 @@ export default {
       optValue['g_opt_img_url'] = jsonData.data.file_url
       optValue['g_opt_img'] = jsonData.data.file_query_id
       Vue.set(this.skuAttrForm.data.g_atr_opts, optIndex, optValue)
-      console.log(this.skuAttrForm.data.g_atr_opts)
     },
     handleCropUploadFail() {
 
