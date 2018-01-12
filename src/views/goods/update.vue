@@ -6,7 +6,8 @@
     label-position="top">
       <el-row>
         <el-col :span="4">
-          <el-button native-type="submit" type="primary" size="mini" @click="handleSubmitCreate">提交商品</el-button>
+          <el-button native-type="submit" type="primary" size="mini" @click="handleSubmitUpdate">提交商品</el-button>
+          <el-button native-type="submit" type="primary" size="mini" @click="refreshGoodsForm">刷新商品</el-button>
         </el-col>
       </el-row>
       <el-tabs v-model="goods.currentTabName">
@@ -64,7 +65,7 @@
               <el-form-item prop="g_end_at" :label="getLabel('g_end_at')" :error="goods.errors.g_end_at">
                 <el-date-picker
                   size="small"
-                  v-model="goods.data.g_start_at"
+                  v-model="goods.data.g_end_at"
                   type="datetime"
                   placeholder="选择日期时间">
                 </el-date-picker>
@@ -128,7 +129,7 @@
                 </el-table-column>
                 <el-table-column align="center" label="操作" width="350" class-name="small-padding">
                   <template slot-scope="scope">
-                    <el-button type="info" size="mini">删除</el-button>
+                    <el-button type="info" size="mini" @click="deleteGoodsMeta(scope.$index)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -173,7 +174,7 @@
                 </el-table-column>
                 <el-table-column align="center" label="操作" width="350" class-name="small-padding">
                   <template slot-scope="scope">
-                    <el-button type="info" size="mini">删除</el-button>
+                    <el-button type="info" size="mini" @click="deleteGoodsSkuAttr(scope.$index)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -342,6 +343,7 @@ import { getToken } from '@/utils/auth'
 import Vue from 'vue'
 import ImageCropper from 'vue-image-crop-upload'
 import { parseTime } from '@/utils'
+import { Message } from 'element-ui'
 
 export default {
   data() {
@@ -373,7 +375,8 @@ export default {
           g_atr_type: 'sku',
           g_atr_opt_img: '0',
           g_atr_name: '',
-          g_atr_code: ''
+          g_atr_code: '',
+          gr_id: ''
         },
         rules: {
           g_atr_name: [
@@ -396,7 +399,8 @@ export default {
           g_atr_code: '',
           g_atr_name: '',
           g_atr_show_name: '',
-          gm_value: ''
+          gm_value: '',
+          gr_id: ''
         },
         rules: {
           g_atr_name: [
@@ -421,6 +425,8 @@ export default {
           g_start_at: '',
           g_end_at: '',
           g_intro_text: '',
+          g_del_meta_ids: [],
+          g_del_atr_ids: [],
           g_sku_attrs: [
           ],
           g_metas: [
@@ -456,29 +462,59 @@ export default {
   },
   components: { Category, Tinymce, ImageCropper },
   methods: {
+    deleteGoodsMeta(index) {
+      const delete_meta = this.goods.data['g_metas'][index]
+      if (delete_meta) {
+        if (delete_meta['gr_id']) {
+          this.goods.data['g_del_meta_ids'].push(delete_meta['gr_id'])
+        }
+        Vue.set(this.goods.data['g_metas'], index, null)
+        this.goods.data['g_metas'].splice(index, 1)
+      }
+    },
+    deleteGoodsSkuAttr(index) {
+      const delete_attr = this.goods.data['g_sku_attrs'][index]
+      if (delete_attr) {
+        if (delete_attr['gr_id']) {
+          this.goods.data['g_del_atr_ids'].push(delete_attr['gr_id'])
+        }
+        Vue.set(this.goods.data['g_sku_attrs'], index, null)
+        this.goods.data['g_sku_attrs'].splice(index, 1)
+      }
+    },
     updateGoods(data) {
       this.goods.loading = true
       return updateGoods(data).then(res => {
         this.goods.loading = false
+        return res
       })
+    },
+    populateGoodsForm(goods) {
+      this.goods.loading = true
+      Object.keys(this.goods.data).forEach(name => {
+        if (goods[name]) {
+          this.goods.data[name] = goods[name]
+        }
+      })
+      if (this.goods.data['g_start_at']) {
+        this.goods.data['g_start_at'] = parseTime(this.goods.data['g_start_at'])
+      }
+      if (this.goods.data['g_end_at']) {
+        this.goods.data['g_end_at'] = parseTime(this.goods.data['g_end_at'])
+      }
+      this.goods.data['g_del_atr_ids'] = []
+      this.goods.data['g_del_meta_ids'] = []
+      this.goods.loading = false
     },
     fetchGoods() {
       this.goods.loading = true
       return getGoods(this.$route.query['g_id']).then(res => {
-        this.goods.loading = false
-        Object.keys(this.goods.data).forEach(name => {
-          if (res.data[name]) {
-            this.goods.data[name] = res.data[name]
-          }
-        })
-        if (this.goods.data['g_start_at']) {
-          this.goods.data['g_start_at'] = parseTime(this.goods.data['g_start_at'])
-        }
-        if (this.goods.data['g_end_at']) {
-          this.goods.data['g_end_at'] = parseTime(this.goods.data['g_end_at'])
-        }
+        this.populateGoodsForm(res.data)
         return res
       })
+    },
+    refreshGoodsForm() {
+      this.fetchGoods()
     },
     getTabError(tabName) {
       let r = false
@@ -513,9 +549,13 @@ export default {
       // this.goods.data.g_metas.push(this.metaForm.data)
       // return false
     },
-    handleSubmitCreate() {
+    handleSubmitUpdate() {
       this.updateGoods(this.goods.data).then(res => {
-        console.log(res)
+        Message({
+          message: '修改成功',
+          type: 'success'
+        })
+        this.populateGoodsForm(res.data)
       }).catch(error => {
         this.goods.loading = false
         if (error.message) {
@@ -556,7 +596,6 @@ export default {
         })
         this.optForm.show = false
       }
-      console.log(this.skuAttrForm.data.g_atr_opts)
     },
     handleCategorySkuAttrChange(data) {
       Object.keys(this.skuAttrForm.data).forEach(name => {
@@ -566,9 +605,8 @@ export default {
       })
     },
     removeOptValue(index) {
-      const len = this.skuAttrForm.data.g_atr_opts.length
       Vue.set(this.skuAttrForm.data.g_atr_opts, index, null)
-      this.skuAttrForm.data.g_atr_opts.splice(len - 1)
+      this.skuAttrForm.data.g_atr_opts.splice(index, 1)
     },
     getOptValStr(attr) {
       const str = []
