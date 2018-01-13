@@ -33,6 +33,22 @@ export function updateGoods(data) {
   })
 }
 
+export function getOneSku(params) {
+  return request({
+    url: '/goods/view-sku',
+    method: 'get',
+    params: params
+  })
+}
+
+export function createOneSku(data) {
+  return request({
+    url: '/goods/create-sku',
+    method: 'post',
+    data: data
+  })
+}
+
 export function getClsAttrs(params) {
   return request({
     url: '/goods/cls-attrs',

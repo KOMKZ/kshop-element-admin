@@ -183,6 +183,35 @@
         </el-tab-pane>
 
 
+        <el-tab-pane name="validSkuListTab">
+          <span slot="label">
+            <span>有效sku列表</span>
+          </span>
+          <el-row>
+            <el-col :span="12">
+              <el-table
+                :data="goods.data.g_vaild_sku_ids"
+                style="width: 100%">
+                <el-table-column
+                  prop="value"
+                  label="sku属性值">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="sku属性值名称">
+                </el-table-column>
+                <el-table-column align="center" label="操作" width="350" class-name="small-padding">
+                  <template slot-scope="scope">
+                    <router-link :to="{ path: '/goods/sku-update', query: {g_id : scope.row.g_id, g_sku_value: scope.row.value} }">
+                      <el-button type="info" size="mini">编辑</el-button>
+                    </router-link>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+
       </el-tabs>
     </el-form>
 
@@ -412,7 +441,7 @@ export default {
         }
       },
       goods: {
-        currentTabName: 'baseTab',
+        currentTabName: 'validSkuListTab',
         curFilterGClsName: '',
         curGClsName: '卫衣',
         loading: false,
@@ -427,6 +456,7 @@ export default {
           g_intro_text: '',
           g_del_meta_ids: [],
           g_del_atr_ids: [],
+          g_vaild_sku_ids: [],
           g_sku_attrs: [
           ],
           g_metas: [

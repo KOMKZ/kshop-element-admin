@@ -86,6 +86,12 @@ export const constantRouterMap = [
         name: 'GoodsUpdate',
         component: _import('goods/update'),
         meta: { title: '商品编辑', icon: 'user' }
+      },
+      {
+        path: 'sku-update',
+        name: 'GoodsSkuUpdate',
+        component: _import('goods/sku-update'),
+        meta: { title: '商品SKU编辑', icon: 'user' }
       }
     ]
   },

@@ -431,7 +431,7 @@ export default {
           g_intro_text: 'hello world',
           g_sku_attrs: [
             {
-              g_atr_id: '41',
+              g_atr_id: '7',
               g_atr_code: '',
               g_atr_name: '颜色',
               g_atr_show_name: '颜色',
@@ -449,7 +449,7 @@ export default {
               ]
             },
             {
-              g_atr_id: '43',
+              g_atr_id: '8',
               g_atr_code: '',
               g_atr_name: '尺寸',
               g_atr_show_name: '尺寸',
@@ -480,7 +480,7 @@ export default {
           ],
           g_metas: [
             {
-              g_atr_id: '22',
+              g_atr_id: '68',
               g_atr_code: '',
               g_atr_name: '适用季节',
               g_atr_show_name: '适用季节',

@@ -19,7 +19,7 @@ export function getEnumMap(name) {
 }
 
 export function hasEnums() {
-  return (typeof enums === 'object')
+  return ((typeof enums === 'object') && enums)
 }
 
 export function setEnumsMap(enums) {
