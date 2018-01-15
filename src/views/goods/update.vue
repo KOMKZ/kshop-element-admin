@@ -1,219 +1,238 @@
 <template lang="html">
   <div class="app-container">
-    <el-form
-    :model="goods.data"
-    v-loading="this.goods.loading"
-    label-position="top">
+
       <el-row>
         <el-col :span="4">
-          <el-button native-type="submit" type="primary" size="mini" @click="handleSubmitUpdate">提交商品</el-button>
+          <el-button native-type="submit" type="primary" size="mini" @click="handleSubmitUpdate">修改商品</el-button>
           <el-button native-type="submit" type="primary" size="mini" @click="refreshGoodsForm">刷新商品</el-button>
         </el-col>
       </el-row>
-      <el-tabs v-model="goods.currentTabName">
-        <el-tab-pane name="baseTab">
-          <span slot="label">
-            <el-badge is-dot v-if="goods.tabs.baseTab.error" class="item">
-              基本信息
-            </el-badge>
-            <span v-else>基本信息</span>
-          </span>
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <el-form-item prop="g_primary_name" :label="getLabel('g_primary_name')" :error="goods.errors.g_primary_name">
-                <el-input size="small" v-model="goods.data.g_primary_name"></el-input>
-              </el-form-item>
-              <el-form-item prop="g_secondary_name" :label="getLabel('g_secondary_name')" :error="goods.errors.g_secondary_name">
-                <el-input size="small" v-model="goods.data.g_secondary_name"></el-input>
-              </el-form-item>
-              <el-row :gutter="12">
-                <el-col :span="12">
-                  <el-form-item prop="g_status" :label="getLabel('g_status')" :error="goods.errors.g_status">
-                    <el-select
-                    size="small"
-                    v-model="goods.data.g_status"
-                     placeholder="请选择"
-                    >
-                       <el-option
-                         v-for="item in getEnumMap('g_status')"
-                         :key="item.value"
-                         :label="item.text"
-                         :value="item.value">
-                       </el-option>
-                     </el-select>
-                  </el-form-item>
-                </el-col>
+      <el-row :gutter="12">
+        <el-col :span="16">
+          <el-form
+          :model="goods.data"
+          v-loading="this.goods.loading"
+          label-position="top">
+            <el-tabs v-model="goods.currentTabName">
+              <el-tab-pane name="baseTab">
+                <span slot="label">
+                  <el-badge is-dot v-if="goods.tabs.baseTab.error" class="item">
+                    基本信息
+                  </el-badge>
+                  <span v-else>基本信息</span>
+                </span>
+                <el-row :gutter="20">
+                  <el-col :span="6">
+                    <el-form-item prop="g_primary_name" :label="getLabel('g_primary_name')" :error="goods.errors.g_primary_name">
+                      <el-input size="small" v-model="goods.data.g_primary_name"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="g_secondary_name" :label="getLabel('g_secondary_name')" :error="goods.errors.g_secondary_name">
+                      <el-input size="small" v-model="goods.data.g_secondary_name"></el-input>
+                    </el-form-item>
+                    <el-row :gutter="12">
+                      <el-col :span="12">
+                        <el-form-item prop="g_status" :label="getLabel('g_status')" :error="goods.errors.g_status">
+                          <el-select
+                          size="small"
+                          v-model="goods.data.g_status"
+                           placeholder="请选择"
+                          >
+                             <el-option
+                               v-for="item in getEnumMap('g_status')"
+                               :key="item.value"
+                               :label="item.text"
+                               :value="item.value">
+                             </el-option>
+                           </el-select>
+                        </el-form-item>
+                      </el-col>
 
-                <el-col :span="12">
-                </el-col>
-              </el-row>
-              <el-form-item prop="g_cls_id" label="查找并选择分类" :error="goods.errors.g_cls_id">
-                <el-input size="small" v-model="goods.curFilterGClsName"></el-input>
-                <el-tag closable @close="clearCurGCls" type="info" v-show="goods.curGClsName">{{goods.curGClsName}}</el-tag>
-                <category @select-category="handleCategoryChange" :filterValue="goods.curFilterGClsName"></category>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item prop="g_start_at" :label="getLabel('g_start_at')" :error="goods.errors.g_start_at">
-                <el-date-picker
-                  size="small"
-                  v-model="goods.data.g_start_at"
-                  type="datetime"
-                  placeholder="选择日期时间">
-                </el-date-picker>
-              </el-form-item>
-              <el-form-item prop="g_end_at" :label="getLabel('g_end_at')" :error="goods.errors.g_end_at">
-                <el-date-picker
-                  size="small"
-                  v-model="goods.data.g_end_at"
-                  type="datetime"
-                  placeholder="选择日期时间">
-                </el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
+                      <el-col :span="12">
+                      </el-col>
+                    </el-row>
+                    <el-form-item prop="g_cls_id" label="查找并选择分类" :error="goods.errors.g_cls_id">
+                      <el-input size="small" v-model="goods.curFilterGClsName"></el-input>
+                      <el-tag closable @close="clearCurGCls" type="info" v-show="goods.curGClsName">{{goods.curGClsName}}</el-tag>
+                      <category @select-category="handleCategoryChange" :filterValue="goods.curFilterGClsName"></category>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item prop="g_start_at" :label="getLabel('g_start_at')" :error="goods.errors.g_start_at">
+                      <el-date-picker
+                        size="small"
+                        v-model="goods.data.g_start_at"
+                        type="datetime"
+                        placeholder="选择日期时间">
+                      </el-date-picker>
+                    </el-form-item>
+                    <el-form-item prop="g_end_at" :label="getLabel('g_end_at')" :error="goods.errors.g_end_at">
+                      <el-date-picker
+                        size="small"
+                        v-model="goods.data.g_end_at"
+                        type="datetime"
+                        placeholder="选择日期时间">
+                      </el-date-picker>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
 
-        <el-tab-pane name="detailTab">
-          <span slot="label">
-            <el-badge is-dot class="item" v-if="goods.tabs.detailTab.error">
-              详细信息(介绍信息)
-            </el-badge>
-            <span v-else>详细信息(介绍信息)</span>
-          </span>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item :label="getLabel('g_intro_text')" :error="goods.errors.g_intro_text" prop="g_intro_text">
-                <tinymce :height=400 ref="editor" v-model="goods.data.g_intro_text"></tinymce>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
+              <el-tab-pane name="detailTab">
+                <span slot="label">
+                  <el-badge is-dot class="item" v-if="goods.tabs.detailTab.error">
+                    详细信息(介绍信息)
+                  </el-badge>
+                  <span v-else>详细信息(介绍信息)</span>
+                </span>
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item :label="getLabel('g_intro_text')" :error="goods.errors.g_intro_text" prop="g_intro_text">
+                      <tinymce :height=400 ref="editor" v-model="goods.data.g_intro_text"></tinymce>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
 
-        <el-tab-pane name="metaTab">
-          <span slot="label">
-            <el-badge is-dot class="item" v-if="goods.tabs.metaTab.error">
-              元信息
-            </el-badge>
-            <span v-else>元信息</span>
-          </span>
-          <el-row>
-            <el-col :span="24">
-              <el-button native-type="submit" type="info" size="mini" @click="metaForm.show = true">增加元属性</el-button>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="16">
-              <el-table
-                :data="goods.data.g_metas"
-                style="width: 100%">
-                <el-table-column
-                  prop="g_atr_id"
-                  :label="getLabel('g_atr_id')">
-                </el-table-column>
-                <el-table-column
-                  prop="g_atr_name"
-                  :label="getLabel('g_atr_name')">
-                </el-table-column>
-                <el-table-column
-                  prop="g_atr_show_name"
-                  :label="getLabel('g_atr_show_name')">
-                </el-table-column>
-                <el-table-column
-                  prop="gm_value"
-                  :label="getLabel('gm_value')">
-                </el-table-column>
-                <el-table-column
-                  prop="g_atr_code"
-                  :label="getLabel('g_atr_code')">
-                </el-table-column>
-                <el-table-column align="center" label="操作" width="350" class-name="small-padding">
-                  <template slot-scope="scope">
-                    <el-button type="info" size="mini" @click="deleteGoodsMeta(scope.$index)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
+              <el-tab-pane name="metaTab">
+                <span slot="label">
+                  <el-badge is-dot class="item" v-if="goods.tabs.metaTab.error">
+                    元信息
+                  </el-badge>
+                  <span v-else>元信息</span>
+                </span>
+                <el-row>
+                  <el-col :span="24">
+                    <el-button native-type="submit" type="info" size="mini" @click="metaForm.show = true">增加元属性</el-button>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="24">
+                    <el-table
+                      :data="goods.data.g_metas"
+                      style="width: 100%">
+                      <el-table-column
+                        prop="g_atr_id"
+                        :label="getLabel('g_atr_id')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="g_atr_name"
+                        :label="getLabel('g_atr_name')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="g_atr_show_name"
+                        :label="getLabel('g_atr_show_name')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="gm_value"
+                        :label="getLabel('gm_value')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="g_atr_code"
+                        :label="getLabel('g_atr_code')">
+                      </el-table-column>
+                      <el-table-column align="center" label="操作" width="350" class-name="small-padding">
+                        <template slot-scope="scope">
+                          <el-button type="info" size="mini" @click="deleteGoodsMeta(scope.$index)">删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
 
-        <el-tab-pane name="skuAttrTab">
-          <span slot="label">
-            <el-badge is-dot class="item" v-if="goods.tabs.skuAttrTab.error">
-              sku属性信息
-            </el-badge>
-            <span v-else>sku属性信息</span>
-          </span>
-          <el-row>
-            <el-col :span="24">
-              <el-button native-type="submit" type="info" size="mini" @click="skuAttrForm.show = true">增加sku属性</el-button>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="16">
-              <el-table
-                :data="goods.data.g_sku_attrs"
-                style="width: 100%">
-                <el-table-column
-                  prop="g_atr_id"
-                  :label="getLabel('g_atr_id')">
-                </el-table-column>
-                <el-table-column
-                  prop="g_atr_name"
-                  :label="getLabel('g_atr_name')">
-                </el-table-column>
-                <el-table-column
-                  prop="g_atr_show_name"
-                  :label="getLabel('g_atr_show_name')">
-                </el-table-column>
-                <el-table-column
-                  label="选项值">
-                  <template slot-scope="scope">
-                    {{getOptValStr(scope.row)}}
-                  </template>
-                </el-table-column>
-                <el-table-column align="center" label="操作" width="350" class-name="small-padding">
-                  <template slot-scope="scope">
-                    <el-button type="info" size="mini" @click="deleteGoodsSkuAttr(scope.$index)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
+              <el-tab-pane name="skuAttrTab">
+                <span slot="label">
+                  <el-badge is-dot class="item" v-if="goods.tabs.skuAttrTab.error">
+                    sku属性信息
+                  </el-badge>
+                  <span v-else>sku属性信息</span>
+                </span>
+                <el-row>
+                  <el-col :span="24">
+                    <el-button native-type="submit" type="info" size="mini" @click="skuAttrForm.show = true">增加sku属性</el-button>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="24">
+                    <el-table
+                      :data="goods.data.g_sku_attrs"
+                      style="width: 100%">
+                      <el-table-column
+                        prop="g_atr_id"
+                        :label="getLabel('g_atr_id')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="g_atr_name"
+                        :label="getLabel('g_atr_name')">
+                      </el-table-column>
+                      <el-table-column
+                        prop="g_atr_show_name"
+                        :label="getLabel('g_atr_show_name')">
+                      </el-table-column>
+                      <el-table-column
+                        label="选项值">
+                        <template slot-scope="scope">
+                          {{getOptValStr(scope.row)}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column align="center" label="操作" width="350" class-name="small-padding">
+                        <template slot-scope="scope">
+                          <el-button type="info" size="mini" @click="deleteGoodsSkuAttr(scope.$index)">删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
 
 
-        <el-tab-pane name="validSkuListTab">
-          <span slot="label">
-            <span>有效sku列表</span>
-          </span>
-          <el-row>
-            <el-col :span="12">
-              <el-table
-                :data="goods.data.g_vaild_sku_ids"
-                style="width: 100%">
-                <el-table-column
-                  prop="value"
-                  label="sku属性值">
-                </el-table-column>
-                <el-table-column
-                  prop="name"
-                  label="sku属性值名称">
-                </el-table-column>
-                <el-table-column align="center" label="操作" width="350" class-name="small-padding">
-                  <template slot-scope="scope">
-                    <router-link :to="{ path: '/goods/sku-update', query: {g_id : scope.row.g_id, g_sku_value: scope.row.value} }">
-                      <el-button type="info" size="mini">编辑</el-button>
-                    </router-link>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
+              <el-tab-pane name="validSkuListTab">
+                <span slot="label">
+                  <span>有效sku列表</span>
+                </span>
+                <el-row>
+                  <el-col :span="24">
+                    <el-table
+                      :data="goods.data.g_vaild_sku_ids"
+                      style="width: 100%">
+                      <el-table-column
+                        prop="value"
+                        label="sku属性值">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="sku属性值名称">
+                      </el-table-column>
+                      <el-table-column align="center" label="操作" width="350" class-name="small-padding">
+                        <template slot-scope="scope">
+                          <router-link :to="{ path: '/goods/sku-update', query: {g_id : scope.row.g_id, g_sku_value: scope.row.value} }">
+                            <el-button type="info" size="mini">编辑</el-button>
+                          </router-link>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+            </el-tabs>
+          </el-form>
+        </el-col>
+        <el-col :span="8">
+          <el-tabs v-model="goods.extCurTabName">
+            <el-tab-pane name="sourceTab">
+              <span slot="label">
+                <span>资源信息</span>
+              </span>
+            </el-tab-pane>
+            <el-tab-pane name="createSourceTab">
+              <span slot="label">
+                <span>创建资源</span>
+              </span>
+            </el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
 
-      </el-tabs>
-    </el-form>
 
     <el-dialog title="创建元信息" :visible.sync="metaForm.show" @close="resetMetaForm">
       <el-form ref="metaForm" :model="metaForm.data" :rules="metaForm.rules" size="small">
@@ -442,6 +461,7 @@ export default {
       },
       goods: {
         currentTabName: 'validSkuListTab',
+        extCurTabName: 'sourceTab',
         curFilterGClsName: '',
         curGClsName: '卫衣',
         loading: false,

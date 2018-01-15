@@ -22,46 +22,49 @@
          </el-select>
         </el-col>
       </el-row>
-      <el-tabs v-model="skuForm.currentTabName">
-        <el-tab-pane name="baseTab">
-          <span slot="label">
-            基础信息
-          </span>
-          <el-row>
-            <el-col :span="4">
-              <el-form-item :label="getLabel('g_sku_value_name')" :error="skuForm.errors.g_sku_name" prop="g_sku_value_name">
-                <el-input disabled :value="getCurSkuValueName"></el-input>
-              </el-form-item>
-              <el-form-item :label="getLabel('g_sku_name')" :error="skuForm.errors.g_sku_name" prop="g_sku_name">
-                <el-input v-model="skuForm.data.g_sku_name"></el-input>
-              </el-form-item>
-              <el-form-item :label="getLabel('g_sku_stock_num')" :error="skuForm.errors.g_sku_stock_num" prop="g_sku_stock_num">
-                <el-input v-model="skuForm.data.g_sku_stock_num"></el-input>
-              </el-form-item>
-              <el-form-item :label="getLabel('g_sku_price')" :error="skuForm.errors.g_sku_price" prop="g_sku_price">
-                <el-input v-model="skuForm.data.g_sku_price"></el-input>
-              </el-form-item>
-              <el-form-item :label="getLabel('g_sku_sale_price')" :error="skuForm.errors.g_sku_sale_price" prop="g_sku_sale_price">
-                <el-input v-model="skuForm.data.g_sku_sale_price"></el-input>
-              </el-form-item>
-              <el-form-item :label="getLabel('g_sku_status')" :error="skuForm.errors.g_sku_status" prop="g_sku_status">
-                <el-select
-                v-model="skuForm.data.g_sku_status"
-                placeholder="请选择"
-                >
-                 <el-option
-                   v-for="item in getEnumMap('g_sku_status')"
-                   :key="item.value"
-                   :label="item.text"
-                   :value="item.value">
-                 </el-option>
-               </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-tab-pane>
-
-      </el-tabs>
+      <el-row>
+        <el-col :span="16">
+          <el-tabs v-model="skuForm.currentTabName">
+            <el-tab-pane name="baseTab">
+              <span slot="label">
+                基础信息
+              </span>
+              <el-row>
+                <el-col :span="4">
+                  <el-form-item :label="getLabel('g_sku_value_name')" :error="skuForm.errors.g_sku_name" prop="g_sku_value_name">
+                    <el-input disabled :value="getCurSkuValueName"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="getLabel('g_sku_name')" :error="skuForm.errors.g_sku_name" prop="g_sku_name">
+                    <el-input v-model="skuForm.data.g_sku_name"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="getLabel('g_sku_stock_num')" :error="skuForm.errors.g_sku_stock_num" prop="g_sku_stock_num">
+                    <el-input v-model="skuForm.data.g_sku_stock_num"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="getLabel('g_sku_price')" :error="skuForm.errors.g_sku_price" prop="g_sku_price">
+                    <el-input v-model="skuForm.data.g_sku_price"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="getLabel('g_sku_sale_price')" :error="skuForm.errors.g_sku_sale_price" prop="g_sku_sale_price">
+                    <el-input v-model="skuForm.data.g_sku_sale_price"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="getLabel('g_sku_status')" :error="skuForm.errors.g_sku_status" prop="g_sku_status">
+                    <el-select
+                    v-model="skuForm.data.g_sku_status"
+                    placeholder="请选择"
+                    >
+                     <el-option
+                       v-for="item in getEnumMap('g_sku_status')"
+                       :key="item.value"
+                       :label="item.text"
+                       :value="item.value">
+                     </el-option>
+                   </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
     </el-form>
   </div>
 </template>
@@ -149,9 +152,13 @@ export default {
     getEnumMap, getLabel,
     sendSkuFormRefresh() {
       this.skuForm.loading = true
-
       return getOneSku(this.$route.query).then(res => {
         this.skuForm.loading = false
+        Object.keys(this.skuForm.data).forEach(name => {
+          if (res.data[name]) {
+            this.skuForm.data[name] = res.data[name]
+          }
+        })
         return res
       }).catch(res => {
         if (res.code === 404) {
@@ -188,7 +195,7 @@ export default {
       this.$refs.skuForm.validate(valid => {
         if (valid) {
           this.sendSkuFormCreate().then(res => {
-            console.log(res)
+            Message({type: 'success', message: "创建商品成功"})
           })
         }
       })
